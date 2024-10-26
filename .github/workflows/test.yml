@@ -29,12 +29,22 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Find and upload all YAML files
-        run: |
-          for file in ./*.yaml; do
-            [ -e "$file" ] || continue
-            echo "Uploading $file..."
-            gh release upload ${{ steps.create_release.outputs.upload_url }} "$file" --repo ${{ github.repository }} --clobber
-          done
+      - name: Upload YAML file 1
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./config.yaml  # Path to the first YAML file in the root directory
+          asset_name: config.yaml  # Set a custom name for the uploaded asset
+          asset_content_type: text/yaml
+
+      - name: Upload YAML file 2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./config_redirhost.yaml  # Path to the second YAML file in the root directory
+          asset_name: config_redirhost.yaml  # Set a custom name for the uploaded asset
+          asset_content_type: text/yaml
