@@ -1,0 +1,40 @@
+name: Create Release with Zip
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.1.0  # updated version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: "Release ${{ env.date }}"
+          body: "This release was automatically generated."
+          draft: false
+          prerelease: false
+
+      - name: Find and upload all YAML files
+        run: |
+          for file in ./*.yaml; do
+            [ -e "$file" ] || continue
+            echo "Uploading $file..."
+            gh release upload ${{ steps.create_release.outputs.upload_url }} "$file" --repo ${{ github.repository }} --clobber
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
