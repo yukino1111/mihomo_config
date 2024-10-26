@@ -15,7 +15,9 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "date=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+        run: |
+          TZ='Asia/Shanghai' date +'%Y%m%d-%H%M%S' > date.txt
+          echo "date=$(cat date.txt)" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
@@ -23,9 +25,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
+          tag_name: v1.0
           release_name: "Release ${{ env.date }}"
-          body: "This release was automatically generated."
+          body: |
+            This release was automatically generated.
+            Generated at: ${{ env.date }} (UTC+8)
           draft: false
           prerelease: false
 
